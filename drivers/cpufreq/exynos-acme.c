@@ -311,6 +311,9 @@ static int exynos_cpufreq_target(struct cpufreq_policy *policy,
 		return scale_slowpath(domain, target_freq, relation, policy);
 
 	freq = (unsigned long)target_freq;
+	if (policy) {
+		freq = (unsigned long)policy->cpuinfo.max_freq;
+	}
 	if (policy && freq < policy->min)
 		freq = (unsigned long)policy->min;
 
@@ -327,6 +330,9 @@ static unsigned int exynos_cpufreq_fast_switch(struct cpufreq_policy *policy,
 		return 0;
 
 	freq = (unsigned long)target_freq;
+	if (policy) {
+		freq = (unsigned long)policy->cpuinfo.max_freq;
+	}
 	if (policy && freq < policy->min)
 		freq = (unsigned long)policy->min;
 
