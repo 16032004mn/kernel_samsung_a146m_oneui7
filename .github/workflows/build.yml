@@ -1,0 +1,53 @@
+name: Build A146M OC Kernel
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Kernel Source
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison build-essential cpio curl flex git libelf-dev libssl-dev pahole python3 python-is-python3 unzip zip zlib1g-dev
+
+      - name: Download AOSP Clang r450784d
+        run: |
+          mkdir -p toolchain/clang-r450784d
+          curl -L "https://://googlesource.com" -o clang.tar.gz
+          tar -xzf clang.tar.gz -C toolchain/clang-r450784d
+          rm clang.tar.gz
+
+      - name: Compile Kernel
+        run: |
+          export ARCH=arm64
+          export SUBARCH=arm64
+          export PLATFORM_VERSION=13
+          export TARGET_SOC=s5e8535
+          export LLVM=1
+          export LLVM_IAS=1
+          export DTC_FLAGS="-@"
+          export PATH="$PWD/toolchain/clang-r450784d/bin:$PATH"
+          make O=out ARCH=arm64 s5e8535-a14xxx_defconfig
+          make -j$(nproc) O=out ARCH=arm64 CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip Image
+
+      - name: Package AnyKernel3 Zip
+        run: |
+          git clone --depth=1 "https://://github.com" AnyKernel3
+          cp out/arch/arm64/boot/Image AnyKernel3/
+          sed -i "s/do.devicecheck=1/do.devicecheck=0/g" AnyKernel3/anykernel.sh
+          sed -i "s|block=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;|block=/dev/block/by-name/boot;|g" AnyKernel3/anykernel.sh
+          sed -i "s/is_slot_device=0;/is_slot_device=auto;/g" AnyKernel3/anykernel.sh
+          cd AnyKernel3
+          zip -r9 ../A146M-Exynos1330-OC-Perf-TWRP.zip * -x .git README.md *placeholder
+
+      - name: Upload TWRP Flashable Zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: A146M-Exynos1330-OC-Perf-TWRP
+          path: A146M-Exynos1330-OC-Perf-TWRP.zip

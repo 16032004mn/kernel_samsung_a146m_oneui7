@@ -480,6 +480,13 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 		for (j = 0; j < fvmap_header[i].num_of_lv; j++) {
 			new->table[j].rate = old->table[j].rate;
 			new->table[j].volt = old->table[j].volt;
+			if (new->table[j].rate == 2400000) {
+				new->table[j].rate = 2592000;
+				new->table[j].volt += 25000;
+			} else if (new->table[j].rate == 2002000) {
+				new->table[j].rate = 2112000;
+				new->table[j].volt += 25000;
+			}
 			pr_info("  lv : [%7d], volt = %d uV (%d %%) \n",
 				new->table[j].rate, new->table[j].volt * STEP_UV,
 				volt_offset_percent);
