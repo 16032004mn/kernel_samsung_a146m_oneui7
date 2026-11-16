@@ -311,6 +311,8 @@ static int exynos_cpufreq_target(struct cpufreq_policy *policy,
 		return scale_slowpath(domain, target_freq, relation, policy);
 
 	freq = (unsigned long)target_freq;
+	if (policy && freq < policy->min)
+		freq = (unsigned long)policy->min;
 
 	return DM_CALL(domain->dm_type, &freq);
 }
@@ -325,6 +327,8 @@ static unsigned int exynos_cpufreq_fast_switch(struct cpufreq_policy *policy,
 		return 0;
 
 	freq = (unsigned long)target_freq;
+	if (policy && freq < policy->min)
+		freq = (unsigned long)policy->min;
 
 	raw_spin_lock_irqsave(&domain->fast_switch_lock, flags);
 
