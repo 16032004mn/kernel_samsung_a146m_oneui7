@@ -1422,6 +1422,15 @@ static int init_domain(struct exynos_cpufreq_domain *domain,
 		return -EINVAL;
 	}
 
+		for (index = 0; index < domain->table_size; index++) {
+			if (fv_table[index].freq == 2400000) {
+				fv_table[index].freq = 2592000;
+				fv_table[index].volt += 25000;
+			} else if (fv_table[index].freq == 2002000) {
+				fv_table[index].freq = 2112000;
+				fv_table[index].volt += 25000;
+			}
+		}
 	/*
 	 * Allocate and initialize frequency table.
 	 * Last row of frequency table must be set to CPUFREQ_TABLE_END.
