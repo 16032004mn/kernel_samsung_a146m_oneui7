@@ -19,7 +19,7 @@ jobs:
       - name: Download AOSP Clang r450784d
         run: |
           mkdir -p toolchain/clang-r450784d
-          curl -L "https://://googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-release/clang-r450784d.tar.gz" -o clang.tar.gz
+          curl -L "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-release/clang-r450784d.tar.gz" -o clang.tar.gz
           tar -xzf clang.tar.gz -C toolchain/clang-r450784d
           rm clang.tar.gz
 
